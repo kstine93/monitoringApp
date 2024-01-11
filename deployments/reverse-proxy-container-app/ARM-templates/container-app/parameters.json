@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "value": "SUBSCRIPTION-ID-HERE"
+        },
+        "name": {
+            "value": "bi-monitoring-app"
+        },
+        "location": {
+            "value": "germanywestcentral"
+        },
+        "environmentId": {
+            "value": "/subscriptions/SUBSCRIPTION-ID-HERE/resourceGroups/bi-monitoring/providers/Microsoft.App/managedEnvironments/bi-monitoring-app-envi"
+        },
+        "registries": {
+            "value": [
+                {
+                    "server": "myregistryazurecr.io",
+                    "username": "bimonitoring",
+                    "passwordSecretRef": "reg-pswd-da21b024-8ced"
+                }
+            ]
+        },
+        "secrets": {
+            "value": {
+                "arrayValue": [
+                    {
+                        "name": "reg-pswd-da21b024-8ced",
+                        "value": "<< PUT CONTAINER REGISTRY ACCESS KEY HERE >>"
+                    },
+                    {
+                        "name": "grafana-username",
+                        "value": "admin"
+                    },
+                    {
+                        "name": "grafana-password",
+                        "value": "<< PUT GRAFANA PASSWORD HERE >>"
+                    }
+                ]
+            }
+        },
+        "ingress": {
+            "value": {
+                "external": true,
+                "transport": "Auto",
+                "allowInsecure": false,
+                "targetPort": 80,
+                "stickySessions": {
+                    "affinity": "none"
+                },
+                "customDomains": [
+                    {
+                        "bindingType": "SniEnabled",
+                        "name": "bi-monitoring.mydomain.com",
+                        "certificateId": "/subscriptions/SUBSCRIPTION-ID-HERE/resourceGroups/bi-monitoring/providers/Microsoft.App/managedEnvironments/bi-monitoring-app-envi/managedCertificates/bi-monitoring.mydomain.com-bi-monit-231129125759"
+                    }
+                ]
+            }
+        },
+        "environmentName": {
+            "value": "bi-monitoring-app-envi"
+        },
+        "workspaceName": {
+            "value": "workspacebimonitoring"
+        },
+        "workspaceLocation": {
+            "value": "germanywestcentral"
+        },
+        "storageAccountName": {
+            "value": "bimonitoringfilestorage"
+        },
+        "azureContainerRegistryUrl":{
+            "value": "myregistryazurecr.io/bi-monitoring/"
+        },
+        "storageAccountKey": {
+            "value": "<< PUT YOUR STORAGE ACCOUNT ACCESS KEY HERE >>"
+        },
+        "prometheusFileShareName": {
+            "value": "bi-monitoring-prometheus"
+        },
+        "grafanaFileShareName": {
+            "value": "bi-monitoring-grafana"
+        },
+        "nginxFileShareName": {
+            "value": "bi-monitoring-nginx"
+        },
+        "prometheusAzureFilesMount": {
+            "value": "files-prometheus"
+        },
+        "grafanaAzureFilesMount": {
+            "value": "files-grafana"
+        },
+        "nginxAzureFilesMount": {
+            "value": "files-nginx"
+        }
+    }
+}

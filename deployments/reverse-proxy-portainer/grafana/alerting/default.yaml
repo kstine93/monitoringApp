@@ -1,0 +1,669 @@
+apiVersion: 1
+contactPoints:
+    - orgId: 1
+      name: 'Slack #Pipeline-Notifications Webhook Alert'
+      receivers:
+        - uid: d2c366b9-9098-4fb8-ad61-bf6013cdbc30
+          type: slack
+          settings:
+            mentionChannel: channel
+            recipient: '#Pipeline-Notifications'
+            url: <<ADD-SLACK-WEBHOOK-URL-HEREL>>
+            username: Grafana Alerting
+          disableResolveMessage: false
+policies:
+    - orgId: 1
+      receiver: 'Slack #Pipeline-Notifications Webhook Alert'
+      group_by:
+        - grafana_folder
+        - alertname
+groups:
+    - orgId: 1
+      name: Databases
+      folder: databases
+      interval: 15m
+      rules:
+        - uid: acd7c3a2-cb78-48c0-a75c-f7c5659cd089
+          title: BI Inhouse - Health Check
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: fde92bf6-9372-492f-a833-4da6c019d9a6
+              model:
+                editorMode: code
+                format: table
+                intervalMs: 15000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: SELECT SUM(pg_database_size(oid)/1000/1000) FROM pg_database
+                refId: A
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: C
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 15000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: Alerting
+          execErrState: Alerting
+          for: 15m
+          annotations:
+            summary: Grafana could not connect to the Jira data within the BI Inhouse database
+          labels:
+            resourcetype: database
+            team: bisquad
+          isPaused: false
+        - uid: ab19733c-b470-434a-a641-ff7a42ffc028
+          title: Vaillant DWH (Dev) - Health Check
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: bbd011ae-4d7c-4939-ba4a-7bad6aa2d34e
+              model:
+                datasource:
+                    type: postgres
+                    uid: bbd011ae-4d7c-4939-ba4a-7bad6aa2d34e
+                editorMode: code
+                format: table
+                intervalMs: 15000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: SELECT SUM(pg_database_size(oid)/1000/1000) FROM pg_database
+                refId: A
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: C
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 15000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: Alerting
+          execErrState: Alerting
+          for: 15m
+          annotations:
+            summary: Grafana could not connect to the Vaillant DWH (Dev) database.
+          labels:
+            resourcetype: database
+            team: bisquad
+          isPaused: false
+        - uid: bdfa793a-a5fb-4713-87fa-7fc29ae4ac6c
+          title: Vaillant DWH (Prod) - Health Check
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: edfe45f5-cc2f-4cc5-9cf8-9a38b9ec9f97
+              model:
+                datasource:
+                    type: postgres
+                    uid: edfe45f5-cc2f-4cc5-9cf8-9a38b9ec9f97
+                editorMode: code
+                format: table
+                intervalMs: 15000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: SELECT SUM(pg_database_size(oid)/1000/1000) FROM pg_database
+                refId: A
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: C
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 15000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: Alerting
+          execErrState: Alerting
+          for: 15m
+          annotations:
+            summary: Grafana could not connect to the Vaillant DWH (Prod) database.
+          labels:
+            resourcetype: database
+            team: bisquad
+          isPaused: false
+    - orgId: 1
+      name: Batch Scripts
+      folder: batch_script_monitoring
+      interval: 30m
+      rules:
+        - uid: eb56e61e-f7d1-4f21-9b09-825aeaccdd35
+          title: Jira Integration Script - No Data
+          condition: LastRanDaysAgo
+          data:
+            - refId: DaysSinceLastRun
+              relativeTimeRange:
+                from: 172800
+                to: 0
+              datasourceUid: PROMETHEUS00001
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PROMETHEUS00001
+                editorMode: code
+                expr: (time() - push_time_seconds{exported_job="jira-integration"})/60/60/24
+                hide: false
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: DaysSinceLastRun
+            - refId: LastRanDaysAgo
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1.5
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: DaysSinceLastRun
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: LastRanDaysAgo
+                type: threshold
+          dashboardUid: 6af1be46-9050-11ee-b9d1-0242ac120002
+          panelId: 3
+          noDataState: Alerting
+          execErrState: Error
+          for: 30m
+          annotations:
+            __dashboardUid__: 6af1be46-9050-11ee-b9d1-0242ac120002
+            __panelId__: "3"
+            summary: The Jira Integration Script has has not reported metrics to the monitoring tool. The script should run once per day.
+          labels:
+            resourcetype: batchscript
+            team: bisquad
+          isPaused: false
+        - uid: d9e40ea2-79f3-474f-a490-efc7ff075e60
+          title: Jira Integration Script Failure
+          condition: ErrorsGreaterThan0
+          data:
+            - refId: ErrorsQuery
+              relativeTimeRange:
+                from: 172800
+                to: 0
+              datasourceUid: PROMETHEUS00001
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PROMETHEUS00001
+                disableTextWrap: false
+                editorMode: builder
+                expr: errors_jira_integration_script
+                fullMetaSearch: false
+                includeNullMetadata: true
+                instant: false
+                interval: ""
+                intervalMs: 3600000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: ErrorsQuery
+                useBackend: false
+            - refId: LastNumberOfErrors
+              relativeTimeRange:
+                from: 172800
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: ErrorsQuery
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: LastNumberOfErrors
+                settings:
+                    mode: dropNN
+                type: reduce
+            - refId: ErrorsGreaterThan0
+              relativeTimeRange:
+                from: 172800
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: LastNumberOfErrors
+                intervalMs: 3600000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: 6af1be46-9050-11ee-b9d1-0242ac120002
+          panelId: 2
+          noDataState: Alerting
+          execErrState: Error
+          for: 30m
+          annotations:
+            __dashboardUid__: 6af1be46-9050-11ee-b9d1-0242ac120002
+            __panelId__: "1"
+            summary: The Jira Integration Script has failed with one or more errors.
+          labels:
+            resourcetype: batchscript
+            team: bisquad
+          isPaused: false
+        - uid: acb08389-f193-48d8-b595-988604e44d44
+          title: Git Repo Migrator Script - No Data
+          condition: LastRanDaysAgo
+          data:
+            - refId: DaysSinceLastRun
+              relativeTimeRange:
+                from: 2764800
+                to: 0
+              datasourceUid: PROMETHEUS00001
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PROMETHEUS00001
+                editorMode: code
+                expr: (time() - push_time_seconds{exported_job="git-repo-migrator"})/60/60/24
+                hide: false
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: DaysSinceLastRun
+            - refId: LastRanDaysAgo
+              relativeTimeRange:
+                from: 2764800
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 33
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: DaysSinceLastRun
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: LastRanDaysAgo
+                type: threshold
+          dashboardUid: b8f37420-9372-11ee-b9d1-0242ac120002
+          panelId: 3
+          noDataState: Alerting
+          execErrState: Error
+          for: 30m
+          annotations:
+            __dashboardUid__: b8f37420-9372-11ee-b9d1-0242ac120002
+            __panelId__: "3"
+            summary: The Git Repo Migrator Script has not reported metrics to the monitoring tool. The script should run once per month.
+          labels:
+            resourcetype: batchscript
+            team: bisquad
+          isPaused: false
+        - uid: f091e38d-4e4a-42e2-8d08-9d767b6a16df
+          title: Git Repo Migrator Script Failure
+          condition: ErrorsGreaterThan0
+          data:
+            - refId: ErrorsQuery
+              relativeTimeRange:
+                from: 2764800
+                to: 0
+              datasourceUid: PROMETHEUS00001
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PROMETHEUS00001
+                disableTextWrap: false
+                editorMode: builder
+                expr: errors_git_repo_migrator
+                fullMetaSearch: false
+                includeNullMetadata: true
+                instant: false
+                interval: ""
+                intervalMs: 3600000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: ErrorsQuery
+                useBackend: false
+            - refId: LastNumberOfErrors
+              relativeTimeRange:
+                from: 2764800
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: ErrorsQuery
+                intervalMs: 3600000
+                maxDataPoints: 43200
+                reducer: last
+                refId: LastNumberOfErrors
+                settings:
+                    mode: dropNN
+                type: reduce
+            - refId: ErrorsGreaterThan0
+              relativeTimeRange:
+                from: 2764800
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: LastNumberOfErrors
+                intervalMs: 3600000
+                maxDataPoints: 43200
+                refId: ErrorsGreaterThan0
+                type: threshold
+          dashboardUid: b8f37420-9372-11ee-b9d1-0242ac120002
+          panelId: 1
+          noDataState: Alerting
+          execErrState: Error
+          for: 30m
+          annotations:
+            __dashboardUid__: b8f37420-9372-11ee-b9d1-0242ac120002
+            __panelId__: "1"
+            summary: The Git Repo Migrator Script has failed with one or more errors.
+          labels:
+            resourcetype: batchscript
+            team: bisquad
+          isPaused: false
+    - orgId: 1
+      name: Data Pipelines
+      folder: data_pipelines
+      interval: 30m
+      rules:
+        - uid: b0744fc3-ed3d-44b6-80bf-072c8b9eedc9
+          title: Azure Data Factory - Vaillant DWH - Pipeline Runs
+          condition: LastRanDaysAgo
+          data:
+            - refId: DaysSinceLastRuns
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PROMETHEUS00001
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PROMETHEUS00001
+                editorMode: code
+                expr: (time() - push_time_seconds{exported_job="hdl-dwh-datafactory"})/60/60/24
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: DaysSinceLastRuns
+            - refId: LastRanDaysAgo
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1.5
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: DaysSinceLastRuns
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: LastRanDaysAgo
+                type: threshold
+          dashboardUid: f96c57fc-32a8-412b-b8cc-7425b1d15994
+          panelId: 3
+          noDataState: NoData
+          execErrState: Error
+          for: 10m
+          annotations:
+            __dashboardUid__: f96c57fc-32a8-412b-b8cc-7425b1d15994
+            __panelId__: "3"
+          labels: {}
+          isPaused: false
+        - uid: d475772f-0549-4e9d-ae3f-4bc8f0aa8ca5
+          title: Azure Data Factory - Vaillant DWH - Pipeline Failures
+          condition: B
+          data:
+            - refId: ErrorsQuery
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PROMETHEUS00001
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PROMETHEUS00001
+                editorMode: code
+                expr: Pipeline_Errors
+                hide: false
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: ErrorsQuery
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: ErrorsQuery
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          dashboardUid: f96c57fc-32a8-412b-b8cc-7425b1d15994
+          panelId: 1
+          noDataState: NoData
+          execErrState: Error
+          for: 10m
+          annotations:
+            __dashboardUid__: f96c57fc-32a8-412b-b8cc-7425b1d15994
+            __panelId__: "1"
+          labels: {}
+          isPaused: false

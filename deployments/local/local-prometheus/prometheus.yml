@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 30s
+
+scrape_configs:
+  #Scraping from prometheus itself
+  - job_name: "prometheus"
+
+    metrics_path: /prometheus/metrics
+
+    scrape_interval: 1m
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  #Dummy application- for testing
+  - job_name: "prometheus-push-gateway"
+    metrics_path: /pushgateway/metrics
+    scheme: http
+    #Scraping for pushed metrics can have high latency,
+    #since they're infrequently updated (e.g., 30m). The value below is lower
+    #latency just for making testing easier.
+    scrape_interval: 20s
+    honor_labels: false
+    static_configs:
+    - targets: ['prom-pushgateway:9090']
+      labels:
+        service: 'prom-pushgateway'

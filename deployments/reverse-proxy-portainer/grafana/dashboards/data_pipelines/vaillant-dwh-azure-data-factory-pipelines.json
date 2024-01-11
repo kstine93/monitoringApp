@@ -1,0 +1,375 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 2,
+    "id": 7,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "datasource",
+                "uid": "grafana"
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 19,
+                "x": 0,
+                "y": 0
+            },
+            "id": 2,
+            "options": {
+                "code": {
+                    "language": "plaintext",
+                    "showLineNumbers": false,
+                    "showMiniMap": false
+                },
+                "content": "## About this dashboard\nThis dashboard shows the status of the data pipelines responsible for (re)creating the Vaillant Data Warehouses on Azure.\nSpecifically, the graph shows the number of errors from the last pipeline run for each pipeline.\nThese pipelines should run every day.\n\nThe second graph shows you the last times each pipeline ran - and the status was successfully passed to Prometheus.\n(Missing values here can also indicate failure of the pipelines).",
+                "mode": "markdown"
+            },
+            "pluginVersion": "10.2.0",
+            "title": "Data Pipeline Monitoring - Vaillant DWH Creation on ADF",
+            "type": "text"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PROMETHEUS00001"
+            },
+            "description": "\n\nNote that a value of '1' means that the pipeline FAILED in its most recent execution.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "fieldMinMax": false,
+                    "mappings": [],
+                    "max": 1,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 19,
+                "x": 0,
+                "y": 5
+            },
+            "id": 1,
+            "interval": "1h",
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "builder",
+                    "expr": "Pipeline_Errors{exported_instance=\"RUN_copy_all_data_and_upsert_customer\"}",
+                    "fullMetaSearch": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Errors: {{exported_instance}}",
+                    "range": true,
+                    "refId": "Errors: DEV copy_all_data_and_upsert_customer",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "builder",
+                    "expr": "Pipeline_Errors{exported_instance=\"RUN_copy_all_data_prod_dim_and_upsert_customer\"}",
+                    "fullMetaSearch": false,
+                    "hide": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Errors: {{exported_instance}}",
+                    "range": true,
+                    "refId": "Errors: PROD copy_all_data_prod_dim_and_upsert_customer",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "builder",
+                    "expr": "Pipeline_Errors{exported_instance=\"RUN_refresh_dwh_report_MV\"}",
+                    "fullMetaSearch": false,
+                    "hide": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Errors: {{exported_instance}}",
+                    "range": true,
+                    "refId": "Errors: PROD refresh_dwh_report_MV",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "builder",
+                    "expr": "Pipeline_Errors{exported_instance=\"RUN_copy_tables_prod_public_and_upsert_customer\"}",
+                    "fullMetaSearch": false,
+                    "hide": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Errors: {{exported_instance}}",
+                    "range": true,
+                    "refId": "Errors: PROD copy_tables_prod_public_and_upsert_customer",
+                    "useBackend": false
+                }
+            ],
+            "title": "Vaillant DWH Azure Data Factory Pipelines - Failures",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PROMETHEUS00001"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "fieldMinMax": false,
+                    "mappings": [],
+                    "max": 1.5,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 19,
+                "x": 0,
+                "y": 12
+            },
+            "id": 3,
+            "interval": "1h",
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "code",
+                    "expr": "rate(push_time_seconds{exported_job=\"hdl-dwh-datafactory\",exported_instance=\"RUN_copy_all_data_and_upsert_customer\"}[1h]) > bool 0",
+                    "fullMetaSearch": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Runs: {{label_name}}{{__name__}}{{exported_instance}}",
+                    "range": true,
+                    "refId": "Runs: DEV copy_all_data_and_upsert_customer",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "code",
+                    "expr": "rate(push_time_seconds{exported_job=\"hdl-dwh-datafactory\",exported_instance=\"RUN_copy_all_data_prod_dim_and_upsert_customer\"}[1h]) > bool 0",
+                    "fullMetaSearch": false,
+                    "hide": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Runs: {{label_name}}{{__name__}}{{exported_instance}}",
+                    "range": true,
+                    "refId": "Runs: PROD copy_all_data_prod_dim_and_upsert_customer",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "code",
+                    "expr": "rate(push_time_seconds{exported_job=\"hdl-dwh-datafactory\",exported_instance=\"RUN_refresh_dwh_report_MV\"}[1h]) > bool 0",
+                    "fullMetaSearch": false,
+                    "hide": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Runs: {{label_name}}{{__name__}}{{exported_instance}}",
+                    "range": true,
+                    "refId": "Runs: PROD refresh_dwh_report_MV",
+                    "useBackend": false
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PROMETHEUS00001"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "code",
+                    "expr": "rate(push_time_seconds{exported_job=\"hdl-dwh-datafactory\",exported_instance=\"RUN_copy_tables_prod_public_and_upsert_customer\"}[1h]) > bool 0",
+                    "fullMetaSearch": false,
+                    "hide": false,
+                    "includeNullMetadata": true,
+                    "instant": false,
+                    "legendFormat": "Runs: {{label_name}}{{__name__}}{{exported_instance}}",
+                    "range": true,
+                    "refId": "Runs: PROD copy_tables_prod_public_and_upsert_customer",
+                    "useBackend": false
+                }
+            ],
+            "title": "Vaillant DWH Azure Data Factory Pipelines - Job Runs",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": "",
+    "schemaVersion": 38,
+    "tags": [],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-7d",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Vaillant DWH - Azure Data Factory Pipelines",
+    "uid": "f96c57fc-32a8-412b-b8cc-7425b1d15994",
+    "version": 6,
+    "weekStart": ""
+}

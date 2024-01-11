@@ -1,0 +1,69 @@
+#Reference showing how to configure this file:
+# https://grafana.com/docs/grafana/latest/administration/provisioning/#datasources
+apiVersion: 1
+
+datasources:
+  - name: Prometheus-local
+    type: prometheus
+    access: proxy
+    uid: "PROMETHEUS00001"
+    #Note: '/prometheus' path must align with nginx reverse proxy path.
+    url: http://prometheus:9090/prometheus
+    editable: true
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      #Reminder: Should be the same version as in Prometheus custom image:
+      prometheusVersion: 2.47.2
+      cacheLevel: 'Low'
+      disableRecordingRules: false
+      incrementalQueryOverlapWindow: 10m
+  - name: PostgreSQL - BI Inhouse Database
+    type: postgres
+    url: 195.154.68.45:10419
+    uid: fde92bf6-9372-492f-a833-4da6c019d9a6
+    user: read_access_user
+    secureJsonData:
+      password: '<< PUT PASSWORD FOR DATA SOURCE HERE >>'
+    jsonData:
+      database: inhouse
+      sslmode: 'disable' # disable/require/verify-ca/verify-full
+      maxOpenConns: 10 # Grafana v5.4+
+      maxIdleConns: 100 # Grafana v5.4+
+      maxIdleConnsAuto: true # Grafana v9.5.1+
+      connMaxLifetime: 14400 # Grafana v5.4+
+      postgresVersion: 1300 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
+      timescaledb: false
+  - name: PostgreSQL - Vaillant DWH (Prod)
+    type: postgres
+    url: my-postgres-implementation.com:5432
+    uid: edfe45f5-cc2f-4cc5-9cf8-9a38b9ec9f97
+    user: cldrdwhadmin
+    secureJsonData:
+      password: '<< PUT PASSWORD FOR DATA SOURCE HERE >>'
+    jsonData:
+      database: postgres
+      sslmode: 'verify-full' # disable/require/verify-ca/verify-full
+      maxOpenConns: 10 # Grafana v5.4+
+      maxIdleConns: 100 # Grafana v5.4+
+      maxIdleConnsAuto: true # Grafana v9.5.1+
+      connMaxLifetime: 14400 # Grafana v5.4+
+      postgresVersion: 903 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
+      timescaledb: false
+  - name: PostgreSQL - Vaillant DWH (Dev)
+    type: postgres
+    url: my-other-postgres-implementation.com:5432
+    uid: bbd011ae-4d7c-4939-ba4a-7bad6aa2d34e
+    user: cldrdwhadmin
+    secureJsonData:
+      password: '<< PUT PASSWORD FOR DATA SOURCE HERE >>'
+    jsonData:
+      database: postgres
+      sslmode: 'verify-full' # disable/require/verify-ca/verify-full
+      maxOpenConns: 10 # Grafana v5.4+
+      maxIdleConns: 100 # Grafana v5.4+
+      maxIdleConnsAuto: true # Grafana v9.5.1+
+      connMaxLifetime: 14400 # Grafana v5.4+
+      postgresVersion: 903 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
+      timescaledb: false

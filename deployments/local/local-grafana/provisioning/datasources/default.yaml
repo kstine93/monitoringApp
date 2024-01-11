@@ -1,0 +1,33 @@
+#Reference showing how to configure this file:
+# https://grafana.com/docs/grafana/latest/administration/provisioning/#datasources
+apiVersion: 1
+
+datasources:
+  - name: TestData
+    type: testdata
+    # <int> Sets the version. Used to compare versions when
+    # updating. Ignored when creating a new data source.
+    version: 1
+    # <bool> Allows users to edit data sources from the
+    # Grafana UI.
+    editable: true
+  - name: Prometheus-local
+    type: prometheus
+    access: proxy
+    uid: "PROMETHEUS00001"
+    #Note: '/prometheus' path must align with nginx reverse proxy path.
+    url: http://prometheus:9090/prometheus
+    #Authentication settings:
+    basicAuth: true
+    basicAuthUser: admin
+    basicAuthPassword: admin
+    editable: true
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      #Reminder: Should be the same version as in Prometheus custom image:
+      prometheusVersion: 2.47.2
+      cacheLevel: 'Low'
+      disableRecordingRules: false
+      incrementalQueryOverlapWindow: 10m

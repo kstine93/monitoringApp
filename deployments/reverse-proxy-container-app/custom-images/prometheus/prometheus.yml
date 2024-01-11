@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 1m
+
+scrape_configs:
+  #Scraping from prometheus itself
+  - job_name: "prometheus"
+    scheme: "http"
+
+    #Note: the '/prometheus' path on this is required so long as the prometheus
+    #image uses the 'web.external-url' and 'web.route-prefix' values.
+    metrics_path: /prometheus/metrics
+
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  #Prometheus push gateway
+  - job_name: "prom-pushgateway"
+    scheme: "http"
+    scrape_interval: 5m
+
+    #Note: the '/pushgateway' path on this is required so long as the prometheus 
+    #push gateway image uses the 'web.external-url' and 'web.route-prefix' values.
+    metrics_path: /pushgateway/metrics
+
+    static_configs:
+      - targets: ["localhost:9091"]
+        labels:
+          service: 'prom-pushgateway'

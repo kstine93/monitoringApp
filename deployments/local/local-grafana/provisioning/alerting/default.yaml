@@ -1,0 +1,116 @@
+apiVersion: 1
+contactPoints:
+    - orgId: 1
+      name: 'Slack #Pipeline-Notifications Webhook Alert'
+      receivers:
+        - uid: d2c366b9-9098-4fb8-ad61-bf6013cdbc30
+          type: slack
+          settings:
+            mentionChannel: channel
+            recipient: '#Pipeline-Notifications'
+            url: <<SLACK-WEBHOOK-URL-HERE>>
+            username: Grafana Alerting
+          disableResolveMessage: false
+policies:
+    - orgId: 1
+      receiver: 'Slack #Pipeline-Notifications Webhook Alert'
+      group_by:
+        - grafana_folder
+        - alertname
+groups:
+    - orgId: 1
+      name: Batch Scripts
+      folder: general alerts
+      interval: 5m
+      rules:
+        - uid: d9e40ea2-79f3-474f-a490-efc7ff075e60
+          title: Jira Integration Script Failure
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 1800
+                to: 0
+              datasourceUid: PROMETHEUS00001
+              model:
+                datasource:
+                    type: prometheus
+                    uid: PROMETHEUS00001
+                disableTextWrap: false
+                editorMode: builder
+                expr: errors_observed_sum{exported_job="jira-integration"}
+                fullMetaSearch: false
+                includeNullMetadata: true
+                instant: false
+                interval: ""
+                intervalMs: 15000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: A
+                useBackend: false
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                settings:
+                    mode: dropNN
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: ed585a7f-6f4c-4a86-801f-9b42de86d9b3
+          panelId: 2
+          noDataState: Alerting
+          execErrState: Error
+          for: 5m
+          annotations:
+            __dashboardUid__: ed585a7f-6f4c-4a86-801f-9b42de86d9b3
+            __panelId__: "2"
+            summary: The Jira Integration Script has failed - or the data is not being found in the monitoring tool.
+          labels:
+            resourcetype: batchscript
+            team: bisquad
+          isPaused: false

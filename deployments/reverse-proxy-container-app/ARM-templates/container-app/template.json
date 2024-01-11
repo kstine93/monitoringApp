@@ -1,0 +1,267 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "environmentId": {
+            "type": "string"
+        },
+        "secrets": {
+            "type": "secureObject",
+            "defaultValue": {
+                "arrayValue": []
+            }
+        },
+        "registries": {
+            "type": "array"
+        },
+        "ingress": {
+            "type": "object"
+        },
+        "environmentName": {
+            "type": "string"
+        },
+        "workspaceName": {
+            "type": "string"
+        },
+        "workspaceLocation": {
+            "type": "string"
+        },
+        "storageAccountName": {
+            "type": "string"
+        },
+        "storageAccountKey": {
+            "type": "securestring"
+        },
+        "prometheusFileShareName": {
+            "type": "string"
+        },
+        "grafanaFileShareName": {
+            "type": "string"
+        },
+        "nginxFileShareName": {
+            "type": "string"
+        },
+        "prometheusAzureFilesMount": {
+            "type": "string"
+        },
+        "grafanaAzureFilesMount": {
+            "type": "string"
+        },
+        "nginxAzureFilesMount": {
+            "type": "string"
+        },
+        "azureContainerRegistryUrl":{
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2023-05-02-preview",
+            "name": "[parameters('name')]",
+            "type": "Microsoft.App/containerapps",
+            "kind": "containerapps",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.App/managedEnvironments/', parameters('environmentName'))]",
+                "[concat('Microsoft.App/managedEnvironments/', parameters('environmentName'),'/storages/', parameters('prometheusAzureFilesMount'))]",
+                "[concat('Microsoft.App/managedEnvironments/', parameters('environmentName'),'/storages/', parameters('grafanaAzureFilesMount'))]"
+            ],
+            "properties": {
+                "environmentId": "[parameters('environmentId')]",
+                "configuration": {
+                    "secrets": "[parameters('secrets').arrayValue]",
+                    "registries": "[parameters('registries')]",
+                    "activeRevisionsMode": "Single",
+                    "ingress": "[parameters('ingress')]"
+                },
+                "template": {
+                    "containers": [
+                        {
+                            "name": "prometheus",
+                            "image": "[concat(parameters('azureContainerRegistryUrl'),'prometheus-custom:latest')]",
+                            "command": [],
+                            "resources": {
+                                "cpu": "1",
+                                "memory": "2Gi"
+                            },
+                            "volumeMounts": [
+                                {
+                                    "mountPath": "/prometheus",
+                                    "volumeName": "[parameters('prometheusAzureFilesMount')]"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "grafana",
+                            "image": "[concat(parameters('azureContainerRegistryUrl'),'grafana-custom:latest')]",
+                            "command": [],
+                            "resources": {
+                                "cpu": "1",
+                                "memory": "2Gi"
+                            },
+                            "env": [
+                                {
+                                    "name": "GF_SECURITY_ADMIN_USER",
+                                    "secretRef": "grafana-username"
+                                },
+                                {
+                                    "name": "GF_SECURITY_ADMIN_PASSWORD",
+                                    "secretRef": "grafana-password"
+                                }
+                            ],
+                            "volumeMounts": [
+                                {
+                                    "mountPath": "/etc/grafana/provisioning",
+                                    "volumeName": "[parameters('grafanaAzureFilesMount')]"
+                                }                            
+                            ]
+                        },
+                        {
+                            "name": "pushgateway",
+                            "image": "[concat(parameters('azureContainerRegistryUrl'),'prom-pushgateway-custom:latest')]",
+                            "command": [],
+                            "resources": {
+                                "cpu": "0.5",
+                                "memory": "1Gi"
+                            }
+                        },
+                        {
+                            "name": "nginx",
+                            "image": "[concat(parameters('azureContainerRegistryUrl'),'nginx-custom:latest')]",
+                            "command": [],
+                            "resources": {
+                                "cpu": "0.5",
+                                "memory": "1Gi"
+                            },
+                            "volumeMounts": [
+                                {
+                                    "mountPath": "/etc/nginx/auth",
+                                    "volumeName": "[parameters('nginxAzureFilesMount')]"
+                                }
+                            ]
+                        }
+                    ],
+                    "scale": {
+                        "minReplicas": 1,
+                        "maxReplicas": 1
+                    },
+                    "volumes": [
+                        {
+                            "name": "[parameters('prometheusAzureFilesMount')]",
+                            "storageType": "AzureFile",
+                            "storageName": "[parameters('prometheusAzureFilesMount')]"
+                        },
+                        {
+                            "name": "[parameters('grafanaAzureFilesMount')]",
+                            "storageType": "AzureFile",
+                            "storageName": "[parameters('grafanaAzureFilesMount')]"
+                        },
+                        {
+                            "name": "[parameters('nginxAzureFilesMount')]",
+                            "storageType": "AzureFile",
+                            "storageName": "[parameters('nginxAzureFilesMount')]"
+                        }
+                    ]
+                },
+                "workloadProfileName": "Consumption"
+            }
+        },
+        {
+            "apiVersion": "2023-05-02-preview",
+            "name": "[parameters('environmentName')]",
+            "type": "Microsoft.App/managedEnvironments",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+            ],
+            "properties": {
+                "appLogsConfiguration": {
+                    "destination": "log-analytics",
+                    "logAnalyticsConfiguration": {
+                        "customerId": "[reference(concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2020-08-01').customerId]",
+                        "sharedKey": "[listKeys(concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2020-08-01').primarySharedKey]"
+                    }
+                },
+                "workloadProfiles": [
+                    {
+                        "name": "Consumption",
+                        "workloadProfileType": "Consumption"
+                    }
+                ]
+            },
+            "resources": [
+                {
+                    "type": "storages",
+                    "name": "[parameters('prometheusAzureFilesMount')]",
+                    "apiVersion": "2022-03-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.App/managedEnvironments', parameters('environmentName'))]"
+                    ],
+                    "properties": {
+                        "azureFile": {
+                            "accountName": "[parameters('storageAccountName')]",
+                            "accountKey": "[parameters('storageAccountKey')]",
+                            "shareName": "[parameters('prometheusFileShareName')]",
+                            "accessMode": "ReadWrite"
+                        }
+                    }
+                },
+                {
+                    "type": "storages",
+                    "name": "[parameters('grafanaAzureFilesMount')]",
+                    "apiVersion": "2022-03-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.App/managedEnvironments', parameters('environmentName'))]"
+                    ],
+                    "properties": {
+                        "azureFile": {
+                            "accountName": "[parameters('storageAccountName')]",
+                            "accountKey": "[parameters('storageAccountKey')]",
+                            "shareName": "[parameters('grafanaFileShareName')]",
+                            "accessMode": "ReadWrite"
+                        }
+                    }
+                },
+                {
+                    "type": "storages",
+                    "name": "[parameters('nginxAzureFilesMount')]",
+                    "apiVersion": "2022-03-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.App/managedEnvironments', parameters('environmentName'))]"
+                    ],
+                    "properties": {
+                        "azureFile": {
+                            "accountName": "[parameters('storageAccountName')]",
+                            "accountKey": "[parameters('storageAccountKey')]",
+                            "shareName": "[parameters('nginxFileShareName')]",
+                            "accessMode": "ReadWrite"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "apiVersion": "2020-08-01",
+            "name": "[parameters('workspaceName')]",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "location": "[parameters('workspaceLocation')]",
+            "dependsOn": [],
+            "properties": {
+                "sku": {
+                    "name": "PerGB2018"
+                },
+                "retentionInDays": 30,
+                "workspaceCapping": {}
+            }
+        }
+    ]
+}
